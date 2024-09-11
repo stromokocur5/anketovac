@@ -1,0 +1,2 @@
+[build]
+pre_cmd = ["tailwindcss -i input.css -o assets/style.css","go test"]

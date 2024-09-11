@@ -2,7 +2,6 @@ package main
 
 import (
 	"anketovac/poll"
-	_ "anketovac/poll"
 	_ "anketovac/templates"
 	_ "net/http"
 

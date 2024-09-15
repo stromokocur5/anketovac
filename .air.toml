@@ -1,2 +1,3 @@
 [build]
 pre_cmd = ["tailwindcss -i input.css -o assets/style.css","templ generate","go test"]
+exclude_regex = [".*_templ.go"]

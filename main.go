@@ -33,7 +33,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
 		os.Exit(1)
 	}
-	// defer dbpool.Close()
+	defer dbpool.Close()
 
 	var greeting string
 	err = dbpool.QueryRow(context.Background(), "select 'verify'").Scan(&greeting)

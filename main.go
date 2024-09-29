@@ -35,8 +35,8 @@ func main() {
 	}
 	defer dbpool.Close()
 
-	var greeting string
-	err = dbpool.QueryRow(context.Background(), "select 'verify'").Scan(&greeting)
+	var verify string
+	err = dbpool.QueryRow(context.Background(), "select 'verify'").Scan(&verify)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
 		os.Exit(1)
@@ -45,9 +45,12 @@ func main() {
 	r := gin.Default()
 	r.Use(Pool(dbpool))
 
-	r.GET("/:poll", poll.Show)
+	r.Static("/assets", "./assets")
+
+	r.GET("/:id", poll.Show)
 	g_poll := r.Group("/poll")
 	{
+		g_poll.GET("/all", poll.All)
 		g_poll.GET("/create", poll.Create)
 		g_poll.GET("/delete", poll.Delete)
 		g_poll.GET("/edit", poll.Edit)

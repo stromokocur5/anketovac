@@ -1,22 +1,20 @@
 package templates
 
-templ Layout(title string,body templ.Component) {
-<!DOCTYPE html>
-<html data-theme="lofi">
-
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{ title }</title>
-  <link rel="stylesheet" href="/assets/style.css" />
-  <style>
+templ Layout(title string, body templ.Component) {
+	<!DOCTYPE html>
+	<html data-theme="lofi">
+		<head>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>{ title }</title>
+			<link rel="stylesheet" href="/assets/style.css"/>
+			<style>
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
   </style>
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-</head>
-
-<body class="font-[Outfit] min-h-screen max-w-screen-xl mx-auto flex flex-col">
-  @body
-</body>
-</html>
+			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+		</head>
+		<body class="font-[Outfit] min-h-screen max-w-screen-xl mx-auto flex flex-col">
+			@body
+		</body>
+	</html>
 }

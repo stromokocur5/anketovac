@@ -9,3 +9,10 @@
 [x-cloak] {
   display: none !important;
 }
+
+
+@layer base {
+  html {
+    font-family: "Afacad Flux", system-ui, sans-serif;
+  }
+}

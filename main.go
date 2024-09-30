@@ -47,13 +47,13 @@ func main() {
 
 	r.Static("/assets", "./assets")
 
+	r.GET("/", poll.Home)
 	r.GET("/:id", poll.Show)
 	g_poll := r.Group("/poll")
 	{
-		g_poll.GET("/all", poll.All)
-		g_poll.GET("/create", poll.Create)
-		g_poll.GET("/delete", poll.Delete)
-		g_poll.GET("/edit", poll.Edit)
+		g_poll.POST("/create", poll.Create)
+		g_poll.POST("/delete", poll.Delete)
+		g_poll.POST("/edit", poll.Edit)
 	}
 	r.Run("0.0.0.0:4000")
 }

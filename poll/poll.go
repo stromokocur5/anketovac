@@ -1,15 +1,15 @@
 package poll
 
 import (
+	. "anketovac/models"
 	"anketovac/templates"
 	"log"
-	"time"
 
 	"github.com/a-h/templ"
 	"github.com/gin-gonic/gin"
 
 	"context"
-	"fmt"
+	_ "fmt"
 	_ "log"
 
 	"github.com/jackc/pgx/v5"
@@ -18,75 +18,27 @@ import (
 	_ "github.com/joho/godotenv"
 )
 
-type PType string
-
-type Poll struct {
-	id          string
-	title       string
-	description string
-	ptype       PType
-	created_at  time.Time
-}
-
-const (
-	Multiple PType = "multiple"
-	Ranking  PType = "ranking"
-	Image    PType = "image"
-)
-
-type PollOption struct {
-	poll_id string
-	name    string
-	votes   uint
-}
-
 func render(ctx *gin.Context, status int, template templ.Component) error {
 	ctx.Status(status)
 	return template.Render(ctx.Request.Context(), ctx.Writer)
 }
 
-func All(c *gin.Context) {
-	dbpool := c.MustGet("dbpool").(*pgxpool.Pool)
-
-	query := "select * from polls_anketovac"
-	rows, err := dbpool.Query(context.Background(), query)
-	defer rows.Close()
-	var polls []Poll
-	_ = polls
-
-	if err == pgx.ErrNoRows {
-		x := templates.Layout("x", templates.Home("no poll"))
-		render(c, 200, x)
-		return
-	}
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	for rows.Next() {
-		var poll Poll
-		err := rows.Scan(&poll.id, &poll.title, &poll.description, &poll.ptype, &poll.created_at)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		polls = append(polls, poll)
-
-	}
-	x := templates.Layout("x", templates.Home("cx"))
+func Home(c *gin.Context) {
+	x := templates.Layout("x", templates.Home())
 
 	render(c, 200, x)
 }
-
 func Show(c *gin.Context) {
 	dbpool := c.MustGet("dbpool").(*pgxpool.Pool)
 	id := c.Param("id")
 
-	query := fmt.Sprintf("select * from polls_anketovac where id = '%s'", id)
-	var poll string
-	err := dbpool.QueryRow(context.Background(), query).Scan(&poll)
+	query := `
+	select * from polls_anketovac where id = $1;
+	`
+	poll := Poll{}
+	err := dbpool.QueryRow(context.Background(), query, id).Scan(&poll.Id, &poll.Title, &poll.Description, &poll.Ptype, &poll.Created_at)
 	if err == pgx.ErrNoRows {
-		x := templates.Layout("x", templates.Home("no poll"))
+		x := templates.Layout("x", templates.PollView(Poll{}))
 		render(c, 200, x)
 		return
 	}
@@ -94,12 +46,64 @@ func Show(c *gin.Context) {
 		log.Println(err)
 		return
 	}
-	x := templates.Layout("x", templates.Home(poll))
+	x := templates.Layout("x", templates.PollView(poll))
 
 	render(c, 200, x)
 }
 
-func Create(c *gin.Context) {}
+func Create(c *gin.Context) {
+	dbpool := c.MustGet("dbpool").(*pgxpool.Pool)
+
+	poll := NewPoll{}
+	err := c.ShouldBind(&poll)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	query := `
+	insert into polls_anketovac (
+	title,
+	description,
+	ptype
+	)
+	values (
+		$1,
+		$2,
+		$3
+	)
+	returning id
+	;
+	`
+	var poll_id string
+	err = dbpool.QueryRow(context.Background(), query, poll.Title, poll.Description, poll.Ptype).Scan(&poll_id)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	query = `
+	insert into poll_options (
+	poll_id,
+	name
+	)
+	values (
+		$1,
+		$2
+	)
+	;
+	`
+	for _, option := range poll.Options {
+		_, err = dbpool.Exec(context.Background(), query, poll_id, option)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	}
+
+	x := templates.Layout("x", templates.PollView(Poll{}))
+
+	render(c, 200, x)
+}
 
 func Delete(c *gin.Context) {}
 

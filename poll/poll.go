@@ -84,16 +84,18 @@ func Create(c *gin.Context) {
 	query = `
 	insert into poll_options (
 	poll_id,
-	name
+	name,
+	option_order
 	)
 	values (
 		$1,
-		$2
+		$2,
+		$3
 	)
 	;
 	`
-	for _, option := range poll.Options {
-		_, err = dbpool.Exec(context.Background(), query, poll_id, option)
+	for i, option := range poll.Options {
+		_, err = dbpool.Exec(context.Background(), query, poll_id, option, i)
 		if err != nil {
 			log.Println(err)
 			return

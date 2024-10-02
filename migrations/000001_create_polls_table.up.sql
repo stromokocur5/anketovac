@@ -14,9 +14,10 @@ CREATE TABLE IF NOT EXISTS polls_anketovac
 CREATE TABLE IF NOT EXISTS poll_options
 (
     poll_id VARCHAR(16) REFERENCES polls_anketovac(id) ON DELETE CASCADE, 
+    option_order INT NOT NULL CHECK (option_order >= 0),
     name VARCHAR(100) NOT NULL CHECK (LENGTH(name) > 0), 
     votes INT NOT NULL DEFAULT 0 CHECK (votes >= 0),
-    PRIMARY KEY (poll_id, name)
+    PRIMARY KEY (poll_id, name, option_order)
 );
 
 CREATE INDEX idx_poll_options_poll_id ON poll_options(poll_id);

@@ -19,9 +19,10 @@ const (
 )
 
 type PollOption struct {
-	Poll_id string
-	Name    string
-	Votes   uint
+	Poll_id     string
+	OptionOrder uint
+	Name        string
+	Votes       uint
 }
 
 type NewPoll struct {

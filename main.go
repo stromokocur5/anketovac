@@ -49,6 +49,7 @@ func main() {
 
 	r.GET("/", poll.Home)
 	r.GET("/:id", poll.Show)
+	r.GET("/create", poll.CreateView)
 	g_poll := r.Group("/poll")
 	{
 		g_poll.POST("/create", poll.Create)

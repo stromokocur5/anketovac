@@ -28,6 +28,11 @@ func Home(c *gin.Context) {
 
 	render(c, 200, x)
 }
+func CreateView(c *gin.Context) {
+	x := templates.Layout("x", templates.Home())
+
+	render(c, 200, x)
+}
 func Show(c *gin.Context) {
 	dbpool := c.MustGet("dbpool").(*pgxpool.Pool)
 	id := c.Param("id")
@@ -38,7 +43,7 @@ func Show(c *gin.Context) {
 	poll := Poll{}
 	err := dbpool.QueryRow(context.Background(), query, id).Scan(&poll.Id, &poll.Title, &poll.Description, &poll.Ptype, &poll.Created_at)
 	if err == pgx.ErrNoRows {
-		x := templates.Layout("x", templates.PollView(Poll{}))
+		x := templates.Layout("x", templates.PollView(Poll{}, []PollOption{}))
 		render(c, 200, x)
 		return
 	}
@@ -46,7 +51,27 @@ func Show(c *gin.Context) {
 		log.Println(err)
 		return
 	}
-	x := templates.Layout("x", templates.PollView(poll))
+
+	query = `
+	select option_order,name,votes from poll_options where id = $1;
+	`
+	poll_options := []PollOption{}
+	rows, err := dbpool.Query(context.Background(), query, id)
+
+	defer rows.Close()
+
+	for rows.Next() {
+		poll_option := PollOption{}
+		err = rows.Scan(&poll_option.OptionOrder, &poll_option.Name, &poll_option.Votes)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		poll_options = append(poll_options, poll_option)
+	}
+
+	_ = poll_options
+	x := templates.Layout("x", templates.PollView(poll, poll_options))
 
 	render(c, 200, x)
 }
@@ -102,9 +127,8 @@ func Create(c *gin.Context) {
 		}
 	}
 
-	x := templates.Layout("x", templates.PollView(Poll{}))
+	c.Redirect(304, "/")
 
-	render(c, 200, x)
 }
 
 func Delete(c *gin.Context) {}

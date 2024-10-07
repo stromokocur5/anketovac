@@ -4,7 +4,7 @@ import (
 	. "anketovac/models"
 )
 
-templ PollView(poll Poll) {
+templ PollView(poll Poll, poll_options []PollOption) {
 	<p>
 		{ string(poll.Ptype) }
 	</p>
